@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Marathon Skills 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg-dark:    #1A1E24;
+    --bg-mid:     #22272F;
+    --bg-panel:   #2A2F38;
+    --bg-header:  #1E2530;
+    --accent:     #E8501A;
+    --accent-h:   #C43F10;
+    --green:      #3DB54A;
+    --text-white: #FFFFFF;
+    --text-gray:  #A0A8B4;
+    --border:     #3A3F4A;
+    --row-alt:    #262B33;
+    --row-hover:  #333A45;
+    --error:      #FF6B5B;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg-dark); color: var(--text-white); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── LAYOUT ── */
+  .app { display: flex; flex-direction: column; height: 100vh; }
+  .page { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+  .page.active { display: flex; }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--bg-header);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0; z-index: 10;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: var(--accent); letter-spacing: .05em;
+    flex: 1;
+  }
+
+  /* ── FOOTER / TIMER BAR ── */
+  .footer {
+    background: var(--bg-header);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 -1px 0 var(--border);
+    position: relative;
+  }
+  .timer-label { font-size: 10px; font-weight: 700; color: var(--text-gray); letter-spacing: .15em; text-align: center; display: block; margin-bottom: 2px; }
+  .timer-value { font-family: 'Barlow Condensed', monospace; font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: .12em; }
+  .footer-right { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
+  .footer-left  { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-gray); font-weight: 600; }
+
+  /* ── SCROLL CONTENT ── */
+  .scroll-content { flex: 1; overflow-y: auto; }
+  .scroll-content::-webkit-scrollbar { width: 6px; }
+  .scroll-content::-webkit-scrollbar-track { background: var(--bg-dark); }
+  .scroll-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── BUTTONS ── */
+  .btn { cursor: pointer; border: none; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 13px; border-radius: 3px; transition: background .15s, color .15s; white-space: nowrap; }
+  .btn-orange { background: var(--accent); color: #fff; padding: 7px 16px; }
+  .btn-orange:hover { background: var(--accent-h); }
+  .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); padding: 6px 16px; }
+  .btn-outline:hover { background: rgba(232,80,26,.12); }
+  .btn-back { background: #3A3F4A; color: #fff; padding: 7px 14px; }
+  .btn-back:hover { background: #4A5060; }
+
+  /* ── FORM ELEMENTS ── */
+  .form-label { font-size: 13px; color: var(--text-gray); font-weight: 500; display: flex; align-items: center; }
+  .form-input, .form-select {
+    width: 100%; background: var(--bg-panel); border: 1px solid var(--border);
+    color: #fff; padding: 8px 10px; font-size: 13px; font-family: 'Barlow', sans-serif;
+    border-radius: 3px; outline: none; transition: border-color .15s;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .form-select option { background: var(--bg-panel); color: #fff; }
+  .form-pass { width: 100%; background: var(--bg-panel); border: 1px solid var(--border); color: #fff; padding: 8px 10px; font-size: 13px; font-family: 'Barlow', sans-serif; border-radius: 3px; outline: none; }
+  .form-pass:focus { border-color: var(--accent); }
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+  .divider-orange { height: 1px; background: var(--accent); margin: 8px 0 16px; }
+  .error-text { color: var(--error); font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
+  .error-text.show { display: block; }
+
+  /* ═══════════════════════════════
+     ABOUT PAGE
+  ═══════════════════════════════ */
+  #page-about .hero {
+    height: 220px; position: relative; overflow: hidden; background: var(--bg-dark);
+  }
+  #page-about .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #page-about .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(26,30,36,.4) 0%, rgba(26,30,36,.85) 100%);
+  }
+  #page-about .hero-text { position: absolute; bottom: 24px; left: 40px; }
+  #page-about .hero-text h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: .05em; margin-bottom: 4px; }
+  #page-about .hero-text p  { font-size: 13px; color: rgba(255,255,255,.8); }
+  .about-content { padding: 28px 40px; }
+  .about-section-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 24px; }
+  .about-block1 { display: grid; grid-template-columns: 220px 1fr; gap: 18px; margin-bottom: 18px; }
+  .about-img { border-radius: 6px; overflow: hidden; height: 210px; }
+  .about-img img { width: 100%; height: 100%; object-fit: cover; }
+  .about-img-placeholder { width: 100%; height: 100%; background: var(--bg-panel); display: flex; align-items: center; justify-content: center; }
+  .about-img-placeholder svg { opacity: .3; }
+  .about-text { font-size: 13px; color: var(--text-gray); line-height: 1.7; }
+  .about-text strong { color: #fff; }
+  .about-wide-img { border-radius: 6px; overflow: hidden; height: 140px; margin-bottom: 14px; }
+  .about-wide-img img { width: 100%; height: 100%; object-fit: cover; }
+  .about-two-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .about-two-imgs .about-img { height: 130px; }
+
+  /* ═══════════════════════════════
+     REGISTER PAGE
+  ═══════════════════════════════ */
+  .register-content { padding: 28px 70px; max-width: 820px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 6px; }
+  .page-subtitle { font-size: 12px; color: var(--text-gray); text-align: center; margin-bottom: 6px; }
+  .register-grid { display: grid; grid-template-columns: 1fr 186px; gap: 24px; }
+  .reg-fields { display: grid; grid-template-columns: 155px 1fr; gap: 10px; align-content: start; }
+  .reg-fields .form-label { align-self: center; }
+  .reg-right { display: flex; flex-direction: column; gap: 0; }
+  .photo-preview-box {
+    width: 100%; height: 148px; border-radius: 6px; background: transparent;
+    overflow: hidden; position: relative; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  .photo-preview-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
+  .photo-placeholder { color: var(--text-gray); font-size: 15px; }
+  .photo-file-row { display: grid; grid-template-columns: 1fr auto; gap: 4px; margin-bottom: 14px; }
+  .photo-file-row input { min-width: 0; }
+  .date-input { width: 100%; background: #fff; border: 1px solid var(--border); color: #333; padding: 8px 10px; font-size: 13px; border-radius: 3px; outline: none; margin-bottom: 14px; }
+  .reg-btns { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+
+  /* ═══════════════════════════════
+     PARTICIPANTS PAGE
+  ═══════════════════════════════ */
+  .participants-content { padding: 24px 40px 20px; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+  .filter-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; margin-bottom: 14px; align-items: start; }
+  .filter-panel { display: grid; grid-template-columns: 130px 180px; gap: 8px; align-items: center; }
+  .filter-panel .form-label { justify-self: end; padding-right: 8px; }
+  .count-text { font-size: 13px; font-weight: 700; color: var(--text-gray); align-self: end; margin-bottom: 2px; }
+
+  /* ── DATA GRID ── */
+  .data-grid-wrap { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--bg-panel); color: var(--text-gray);
+    font-weight: 700; font-size: 11px; padding: 9px 12px;
+    text-align: left; border-bottom: 2px solid var(--border);
+    position: sticky; top: 0; letter-spacing: .05em;
+  }
+  tbody tr { background: var(--bg-mid); height: 34px; transition: background .1s; }
+  tbody tr:nth-child(even) { background: var(--row-alt); }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody td { padding: 0 12px; vertical-align: middle; color: #fff; border-bottom: 1px solid var(--border); }
+  .btn-edit { background: var(--accent); color: #fff; border: none; border-radius: 3px; padding: 4px 10px; font-size: 12px; font-family: 'Barlow', sans-serif; font-weight: 600; cursor: pointer; margin: 2px 4px; }
+  .btn-edit:hover { background: var(--accent-h); }
+  .btn-del { background: #3A3F4A; color: #ff6b5b; border: none; border-radius: 3px; padding: 4px 10px; font-size: 12px; font-family: 'Barlow', sans-serif; font-weight: 600; cursor: pointer; margin: 2px 4px; }
+  .btn-del:hover { background: #ff3b2b; color: #fff; }
+
+  /* ═══════════════════════════════
+     BMI PAGE
+  ═══════════════════════════════ */
+  .bmi-content { padding: 28px 50px; }
+  .bmi-grid { display: grid; grid-template-columns: 290px 36px 1fr; gap: 0; }
+  .bmi-left { display: flex; flex-direction: column; gap: 0; }
+  .gender-row { display: flex; gap: 12px; margin-bottom: 22px; }
+  .gender-box {
+    width: 96px; height: 96px; background: var(--bg-panel); border-radius: 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  }
+  .gender-box span { font-size: 10px; color: var(--text-gray); }
+  .bmi-inputs { display: grid; grid-template-columns: 60px 90px auto; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .bmi-inputs .form-label { align-self: center; }
+  .bmi-unit { color: var(--text-gray); font-size: 13px; align-self: center; margin-left: 4px; }
+  .bmi-btns { display: flex; gap: 10px; }
+  .bmi-result-panel { background: var(--bg-panel); border-radius: 8px; padding: 24px 30px; display: flex; flex-direction: column; align-items: center; }
+  .bmi-category { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+  .bmi-value { font-family: 'Barlow Condensed', monospace; font-size: 38px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+  .bmi-scale { width: 280px; height: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; border-radius: 5px; overflow: hidden; margin-bottom: 4px; }
+  .bmi-scale-seg:nth-child(1) { background: #E8501A; }
+  .bmi-scale-seg:nth-child(2) { background: #3DB54A; }
+  .bmi-scale-seg:nth-child(3) { background: #FF9800; }
+  .bmi-scale-seg:nth-child(4) { background: #E53935; }
+  .bmi-arrow-row { width: 280px; position: relative; height: 16px; margin-bottom: 4px; }
+  .bmi-arrow { position: absolute; left: 0; font-size: 12px; color: var(--accent); transition: left .4s cubic-bezier(.4,0,.2,1); }
+  .bmi-scale-labels { width: 280px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .bmi-scale-labels span { font-size: 9px; color: var(--text-gray); text-align: center; line-height: 1.3; }
+
+  /* ═══════════════════════════════
+     LOGIN PAGE
+  ═══════════════════════════════ */
+  .login-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+  .login-card { background: var(--bg-panel); border-radius: 8px; padding: 40px 50px; width: 440px; }
+  .login-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 10px; }
+  .login-sub { font-size: 12px; color: var(--text-gray); text-align: center; margin-bottom: 28px; line-height: 1.5; }
+  .login-field { display: grid; grid-template-columns: 100px 1fr; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .login-field:last-of-type { margin-bottom: 28px; }
+  .login-btns { display: flex; gap: 12px; justify-content: center; }
+
+  /* ═══════════════════════════════
+     ADMIN EDIT PAGE
+  ═══════════════════════════════ */
+  .edit-content { padding: 30px 80px; max-width: 760px; margin: 0 auto; }
+  .edit-grid { display: grid; grid-template-columns: 1fr 32px 1fr; }
+  .edit-fields { display: grid; grid-template-columns: 100px 1fr; gap: 14px; align-content: start; }
+  .edit-fields .form-label { align-self: center; }
+  .edit-pass-panel { background: var(--bg-panel); border-radius: 6px; padding: 18px 20px; }
+  .edit-pass-title { font-size: 15px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+  .edit-pass-sub { font-size: 11px; color: var(--text-gray); text-align: center; margin-bottom: 18px; line-height: 1.5; }
+  .edit-pass-fields { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; }
+  .edit-btns { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+  .email-display { font-size: 13px; color: var(--text-gray); font-style: italic; align-self: center; }
+
+  /* ── PERSON SILHOUETTE SVG ── */
+  .silhouette { fill: var(--accent); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+  .page.active { animation: fadeIn .2s ease; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════ ABOUT PAGE ══════════════ -->
+<div id="page-about" class="page active">
+  <div class="header">
+    <span class="header-title">MARATHON SKILLS 2026</span>
+    <button class="btn btn-outline" onclick="navigate('participants')">Список участников</button>
+    <button class="btn btn-orange" onclick="navigate('register')">Регистрация</button>
+  </div>
+  <div class="scroll-content">
+    <div class="hero">
+      <canvas id="heroCanvas" class="hero-canvas"></canvas>
+      <div class="hero-overlay"></div>
+      <div class="hero-text">
+        <h1>MARATHON SKILLS 2026</h1>
+        <p>42,195 км · воля · выносливость · скорость</p>
+      </div>
+    </div>
+    <div class="about-content">
+      <div class="about-section-title">Информация о Marathon Skills 2026</div>
+      <div class="about-block1">
+        <div class="about-img">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/2009_London_Marathon_-_leading_pack_shortly_after_start.jpg/640px-2009_London_Marathon_-_leading_pack_shortly_after_start.jpg"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt=""/>
+          <div class="about-img-placeholder" style="display:none">
+            <svg width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" rx="4" fill="#3A3F4A"/><text x="30" y="34" text-anchor="middle" fill="#A0A8B4" font-size="11">Фото</text></svg>
+          </div>
+        </div>
+        <div class="about-text">
+          <strong>Марафон</strong> — это не просто забег на дистанцию <strong>42,195 км.</strong> Это ежегодный ритуал, который объединяет профессиональных атлетов, любителей и тысячи зрителей в едином порыве воли и выносливости.<br><br>
+          Примерно на <strong>30–35 километре</strong> многие бегуны сталкиваются с явлением, которое называют «стеной». В этот момент запасы гликогена в мышцах истощаются, и организм начинает требовать немедленной остановки. Преодоление этого барьера — это уже не вопрос физики, а вопрос чистого упрямства и силы духа.<br><br>
+          Раз в году целые мегаполисы перекрывают движение, чтобы отдать улицы бегунам. Для участников это уникальный шанс увидеть город без машин: пробежать по мосту Верразано в Нью-Йорке или мимо Бранденбургских ворот в Берлине под крики тысяч болельщиков.
+        </div>
+      </div>
+      <div class="about-wide-img">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/2013_Boston_Marathon_-_Hopkinton_start.jpg/640px-2013_Boston_Marathon_-_Hopkinton_start.jpg"
+             onerror="this.style.display='none'" alt=""/>
+      </div>
+      <div class="about-two-imgs">
+        <div class="about-img">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/2007_Frankfurt_Marathon_starting_field.jpg/640px-2007_Frankfurt_Marathon_starting_field.jpg"
+               onerror="this.style.display='none'" alt=""/>
+        </div>
+        <div class="about-img">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Honolulu_Marathon_2007.jpg/640px-Honolulu_Marathon_2007.jpg"
+               onerror="this.style.display='none'" alt=""/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div>
+      <span class="timer-label">ДО  СТАРТА  МАРАФОНА</span>
+      <span class="timer-value" id="timer-about">…</span>
+    </div>
+    <div class="footer-right">
+      <button class="btn btn-orange" style="font-size:12px;padding:7px 14px" onclick="navigate('login')">LOGIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ REGISTER PAGE ══════════════ -->
+<div id="page-register" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('about')">← Назад</button>
+    <span class="header-title">MARATHON SKILLS 2026</span>
+  </div>
+  <div class="scroll-content">
+    <div class="register-content">
+      <div class="page-title">Регистрация бегуна</div>
+      <div class="page-subtitle">Пожалуйста заполните всю информацию, чтобы зарегистрироваться в качестве бегуна</div>
+      <div class="error-text" id="reg-error"></div>
+      <div class="divider"></div>
+      <div class="register-grid">
+        <div class="reg-fields">
+          <label class="form-label">Email:</label>
+          <input type="text" class="form-input" id="reg-email" placeholder="example@mail.com"/>
+          <label class="form-label">Пароль:</label>
+          <input type="password" class="form-pass" id="reg-pass"/>
+          <label class="form-label">Повторите пароль:</label>
+          <input type="password" class="form-pass" id="reg-pass2"/>
+          <label class="form-label">Имя:</label>
+          <input type="text" class="form-input" id="reg-name"/>
+          <label class="form-label">Фамилия:</label>
+          <input type="text" class="form-input" id="reg-surname"/>
+          <label class="form-label">Пол:</label>
+          <select class="form-select" id="reg-gender" style="background:#fff;color:#333">
+            <option value="Мужской">Мужской</option>
+            <option value="Женский">Женский</option>
+          </select>
+        </div>
+        <div class="reg-right">
+          <div class="photo-preview-box">
+            <img id="reg-photo-preview" alt=""/>
+            <span class="photo-placeholder" id="reg-photo-placeholder">Фото</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-gray);margin-bottom:4px">Фото файл:</div>
+          <div class="photo-file-row" style="margin-bottom:14px">
+            <input type="text" class="form-input" id="reg-photo-name" value="Photo_logo.jpg" readonly style="font-size:11px"/>
+            <button class="btn btn-back" style="padding:6px 8px;font-size:11px" onclick="browsePhoto()">Просмотр...</button>
+            <input type="file" id="reg-photo-file" accept="image/*" style="display:none" onchange="onPhotoChange(this)"/>
+          </div>
+          <div style="font-size:11px;color:var(--text-gray);margin-bottom:4px">Дата рождения:</div>
+          <input type="date" class="date-input" id="reg-dob" value="1978-07-16"/>
+          <div style="font-size:11px;color:var(--text-gray);margin-bottom:4px;margin-top:0">Страна:</div>
+          <select class="form-select" id="reg-country" style="background:#fff;color:#333">
+            <option>Russia</option><option>Germany</option><option>France</option>
+            <option>USA</option><option>UK</option><option>Italy</option>
+            <option>Spain</option><option>Japan</option><option>Kazakhstan</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="divider" style="margin-top:22px;margin-bottom:18px"></div>
+      <div class="reg-btns">
+        <button class="btn btn-orange" onclick="doRegister()">Регистрация</button>
+        <button class="btn btn-outline" onclick="navigate('about')">Отмена</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="timer-value" id="timer-register">…</span>
+  </div>
+</div>
+
+<!-- ══════════════ PARTICIPANTS PAGE ══════════════ -->
+<div id="page-participants" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('about')">← Назад</button>
+    <span class="header-title">MARATHON SKILLS 2026</span>
+  </div>
+  <div class="participants-content">
+    <div class="page-title" style="margin-bottom:6px">Список зарегистрированных пользователей</div>
+    <div class="divider-orange"></div>
+    <div class="filter-row">
+      <div class="count-text" id="participants-count">Всего пользователей: 0</div>
+      <div style="display:grid;grid-template-columns:130px 180px;gap:8px;align-items:center">
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Фильтр по ролям:</label>
+        <select class="form-select" id="p-role" style="background:#fff;color:#333" onchange="refreshParticipants()">
+          <option value="">Все роли</option><option value="Координатор">Координатор</option><option value="Бегун">Бегун</option>
+        </select>
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Сортировать по:</label>
+        <select class="form-select" id="p-sort" style="background:#fff;color:#333" onchange="refreshParticipants()">
+          <option value="name">Имени</option><option value="surname">Фамилии</option><option value="email">Email</option><option value="role">Роли</option>
+        </select>
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Поиск:</label>
+        <input type="text" class="form-input" id="p-search" oninput="refreshParticipants()"/>
+        <span></span>
+        <button class="btn btn-orange" style="padding:6px 14px;justify-self:end" onclick="refreshParticipants()">Обновить</button>
+      </div>
+    </div>
+    <div class="data-grid-wrap">
+      <table>
+        <thead><tr><th>ИМЯ</th><th>ФАМИЛИЯ</th><th>EMAIL</th><th>РОЛЬ</th></tr></thead>
+        <tbody id="participants-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="timer-value" id="timer-participants">…</span>
+  </div>
+</div>
+
+<!-- ══════════════ BMI PAGE ══════════════ -->
+<div id="page-bmi" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('about')">← Назад</button>
+    <span class="header-title" style="font-size:20px">BMI CALCULATOR</span>
+    <button class="btn btn-orange" onclick="saveBmi()">Сохранить</button>
+  </div>
+  <div class="scroll-content">
+    <div class="bmi-content">
+      <div class="page-title">BMI калькулятор</div>
+      <div class="page-subtitle">Информация о том что такое BMI и как калькулятор работает</div>
+      <div class="divider"></div>
+      <div class="bmi-grid">
+        <div class="bmi-left">
+          <div class="gender-row">
+            <div class="gender-box">
+              <svg width="40" height="58" viewBox="0 0 50 70">
+                <ellipse cx="25" cy="10" rx="10" ry="10" fill="#A0A8B4"/>
+                <rect x="18" y="22" width="14" height="28" rx="2" fill="#A0A8B4"/>
+                <rect x="6" y="25" width="12" height="5" rx="2" fill="#A0A8B4"/>
+                <rect x="32" y="25" width="12" height="5" rx="2" fill="#A0A8B4"/>
+                <rect x="16" y="50" width="7" height="20" rx="2" fill="#A0A8B4"/>
+                <rect x="27" y="50" width="7" height="20" rx="2" fill="#A0A8B4"/>
+              </svg>
+              <span>Мужской</span>
+            </div>
+            <div class="gender-box">
+              <svg width="40" height="58" viewBox="0 0 50 70">
+                <ellipse cx="25" cy="10" rx="10" ry="10" fill="#A0A8B4"/>
+                <polygon points="25,22 8,52 42,52" fill="#A0A8B4"/>
+                <rect x="16" y="52" width="7" height="18" rx="2" fill="#A0A8B4"/>
+                <rect x="27" y="52" width="7" height="18" rx="2" fill="#A0A8B4"/>
+              </svg>
+              <span>Женский</span>
+            </div>
+          </div>
+          <div class="bmi-inputs">
+            <label class="form-label">Рост:</label>
+            <input type="text" class="form-input" id="bmi-height" value="170"/>
+            <span class="bmi-unit">см</span>
+            <label class="form-label">Вес:</label>
+            <input type="text" class="form-input" id="bmi-weight" value="70"/>
+            <span class="bmi-unit">кг</span>
+          </div>
+          <div class="bmi-btns">
+            <button class="btn btn-orange" style="padding:8px 18px" onclick="calcBmi()">Рассчитать</button>
+            <button class="btn btn-outline" style="padding:7px 18px" onclick="navigate('about')">Отмена</button>
+          </div>
+        </div>
+        <div></div><!-- spacer -->
+        <div class="bmi-result-panel">
+          <svg width="80" height="120" viewBox="0 0 60 140" style="margin-bottom:14px">
+            <ellipse cx="30" cy="10" rx="10" ry="10" class="silhouette"/>
+            <rect x="22" y="22" width="16" height="60" rx="3" class="silhouette"/>
+            <rect x="4" y="26" width="18" height="6" rx="3" class="silhouette"/>
+            <rect x="38" y="26" width="18" height="6" rx="3" class="silhouette"/>
+            <rect x="22" y="84" width="7" height="56" rx="3" class="silhouette"/>
+            <rect x="31" y="84" width="7" height="56" rx="3" class="silhouette"/>
+          </svg>
+          <div class="bmi-category" id="bmi-category">—</div>
+          <div class="bmi-value" id="bmi-val"></div>
+          <div class="bmi-scale">
+            <div class="bmi-scale-seg"></div>
+            <div class="bmi-scale-seg"></div>
+            <div class="bmi-scale-seg"></div>
+            <div class="bmi-scale-seg"></div>
+          </div>
+          <div class="bmi-arrow-row">
+            <span class="bmi-arrow" id="bmi-arrow">▼</span>
+          </div>
+          <div class="bmi-scale-labels">
+            <span>Недостаточный</span><span>Здоровый</span><span>Избыточный</span><span>Ожирение</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="footer-left" id="bmi-fio"></span>
+  </div>
+</div>
+
+<!-- ══════════════ LOGIN PAGE ══════════════ -->
+<div id="page-login" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('about')">← Назад</button>
+    <span class="header-title">MARATHON SKILLS 2026</span>
+  </div>
+  <div class="login-center">
+    <div class="login-card">
+      <div class="login-title">Форма авторизации</div>
+      <div class="login-sub">Пожалуйста, авторизуйтесь в системе, используя ваш логин и пароль.</div>
+      <div class="error-text" id="login-error"></div>
+      <div class="login-field">
+        <label class="form-label" style="font-size:14px">Login:</label>
+        <input type="text" class="form-input" id="login-user" placeholder="Enter your login"/>
+      </div>
+      <div class="login-field">
+        <label class="form-label" style="font-size:14px">Password:</label>
+        <input type="password" class="form-pass" id="login-pass"/>
+      </div>
+      <div class="login-btns">
+        <button class="btn btn-orange" style="padding:8px 24px" onclick="doLogin()">Login</button>
+        <button class="btn btn-outline" style="padding:7px 24px" onclick="navigate('about')">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="timer-value" id="timer-login">…</span>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN USERS PAGE ══════════════ -->
+<div id="page-admin" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('login')">← Назад</button>
+    <span class="header-title">MARATHON SKILLS 2026</span>
+  </div>
+  <div class="participants-content">
+    <div class="page-title" style="margin-bottom:6px">Список зарегистрированных пользователей</div>
+    <div class="divider-orange"></div>
+    <div class="filter-row">
+      <button class="btn btn-outline" style="padding:8px 16px;font-size:12px;align-self:start" onclick="navigate('admin-edit-new')">+ Добавление<br>нового</button>
+      <div style="display:grid;grid-template-columns:130px 180px;gap:8px;align-items:center">
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Фильтр по ролям:</label>
+        <select class="form-select" id="a-role" style="background:#fff;color:#333" onchange="refreshAdmin()">
+          <option value="">Все роли</option><option value="Координатор">Координатор</option><option value="Бегун">Бегун</option>
+        </select>
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Сортировать по:</label>
+        <select class="form-select" id="a-sort" style="background:#fff;color:#333" onchange="refreshAdmin()">
+          <option value="name">Имени</option><option value="surname">Фамилии</option><option value="email">Email</option><option value="role">Роли</option>
+        </select>
+        <label class="form-label" style="justify-content:flex-end;padding-right:8px">Поиск:</label>
+        <input type="text" class="form-input" id="a-search" oninput="refreshAdmin()"/>
+        <span></span>
+        <button class="btn btn-orange" style="padding:6px 14px;justify-self:end" onclick="refreshAdmin()">Обновить</button>
+      </div>
+    </div>
+    <div class="count-text" id="admin-count" style="margin-bottom:8px">Всего пользователей: 0</div>
+    <div class="data-grid-wrap">
+      <table>
+        <thead><tr><th>ИМЯ</th><th>ФАМИЛИЯ</th><th>EMAIL</th><th>РОЛЬ</th><th></th><th></th></tr></thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="timer-value" id="timer-admin">…</span>
+    <div class="footer-right">
+      <button class="btn btn-outline" style="font-size:12px;padding:6px 14px" onclick="navigate('about')">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN EDIT PAGE ══════════════ -->
+<div id="page-admin-edit" class="page">
+  <div class="header">
+    <button class="btn btn-back" onclick="navigate('admin')">← Назад</button>
+    <span class="header-title">MARATHON SKILLS 2026</span>
+  </div>
+  <div class="scroll-content">
+    <div class="edit-content">
+      <div class="page-title">Редактирование пользователя</div>
+      <div class="error-text" id="edit-error"></div>
+      <div class="divider"></div>
+      <div class="edit-grid">
+        <div class="edit-fields">
+          <label class="form-label">Email:</label>
+          <span class="email-display" id="edit-email-display"></span>
+          <label class="form-label">Имя:</label>
+          <input type="text" class="form-input" id="edit-name"/>
+          <label class="form-label">Фамилия:</label>
+          <input type="text" class="form-input" id="edit-surname"/>
+          <label class="form-label">Роль:</label>
+          <select class="form-select" id="edit-role" style="background:#fff;color:#333">
+            <option value="Бегун">Бегун</option>
+            <option value="Координатор">Координатор</option>
+          </select>
+        </div>
+        <div></div>
+        <div class="edit-pass-panel">
+          <div class="edit-pass-title">Смена пароля</div>
+          <div class="edit-pass-sub">Оставьте эти поля незаполненными,<br>если вы не хотите менять пароль.</div>
+          <div class="edit-pass-fields">
+            <label class="form-label">Пароль:</label>
+            <input type="password" class="form-pass" id="edit-pass"/>
+            <label class="form-label">Повтор пароля:</label>
+            <input type="password" class="form-pass" id="edit-pass2"/>
+          </div>
+        </div>
+      </div>
+      <div class="divider" style="margin-top:24px;margin-bottom:20px"></div>
+      <div class="edit-btns">
+        <button class="btn btn-orange" onclick="saveEdit()">Сохранить</button>
+        <button class="btn btn-outline" onclick="navigate('admin')">Отмена</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <span class="timer-value" id="timer-edit">…</span>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ═══════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════
+let runners = JSON.parse(localStorage.getItem('ms_runners') || '[]');
+if (!runners.length) {
+  runners = [
+    { email:'admin@marathon.com', password:'admin', name:'Admin', surname:'Coordinator', gender:'Мужской', country:'Russia', dob:'1990-01-01', role:'Координатор', bmi:0 },
+    { email:'ivan@example.com',   password:'1234',  name:'Иван',  surname:'Иванов',      gender:'Мужской', country:'Russia', dob:'1985-05-12', role:'Бегун',       bmi:22.4 },
+    { email:'anna@example.com',   password:'1234',  name:'Анна',  surname:'Петрова',     gender:'Женский', country:'Russia', dob:'1992-03-08', role:'Бегун',       bmi:20.1 },
+  ];
+  save();
+}
+function save() { localStorage.setItem('ms_runners', JSON.stringify(runners)); }
+
+let currentUser = null;
+let editTarget  = null; // null = new, index = editing
+
+// ═══════════════════════════════════════════
+// MARATHON COUNTDOWN
+// ═══════════════════════════════════════════
+const MARATHON_DATE = new Date('2026-09-06T09:00:00');
+function getCountdown() {
+  const diff = MARATHON_DATE - Date.now();
+  if (diff <= 0) return '0Д 00Ч 00М 00С';
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return d + 'Д ' + String(h).padStart(2,'0') + 'Ч ' + String(m).padStart(2,'0') + 'М ' + String(s).padStart(2,'0') + 'С';
+}
+const timerIds = ['timer-about','timer-register','timer-participants','timer-login','timer-admin','timer-edit'];
+function tickTimers() {
+  const t = getCountdown();
+  timerIds.forEach(id => { const el = document.getElementById(id); if(el) el.textContent = t; });
+}
+tickTimers();
+setInterval(tickTimers, 1000);
+
+// ═══════════════════════════════════════════
+// HERO CANVAS
+// ═══════════════════════════════════════════
+function drawHero() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  // Deep gradient background
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0, '#0F1318');
+  grad.addColorStop(1, '#1E2835');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,W,H);
+  // Track lanes (diagonal lines)
+  ctx.strokeStyle = 'rgba(232,80,26,0.18)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 8; i++) {
+    const x = 60 + i * 120;
+    ctx.beginPath();
+    ctx.moveTo(x, H);
+    ctx.lineTo(400 + i * 30, 0);
+    ctx.stroke();
+  }
+  // Subtle dots
+  for (let i = 0; i < 60; i++) {
+    ctx.beginPath();
+    ctx.arc(Math.random()*W, Math.random()*H, 1, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.15})`;
+    ctx.fill();
+  }
+  // Orange glow at bottom
+  const glow = ctx.createLinearGradient(0, H*0.7, 0, H);
+  glow.addColorStop(0, 'rgba(232,80,26,0)');
+  glow.addColorStop(1, 'rgba(232,80,26,0.15)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,W,H);
+}
+window.addEventListener('load', () => { drawHero(); });
+window.addEventListener('resize', drawHero);
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  if (page === 'admin-edit-new') {
+    editTarget = null;
+    openEditPage(null);
+    document.getElementById('page-admin-edit').classList.add('active');
+  } else if (page === 'admin-edit') {
+    document.getElementById('page-admin-edit').classList.add('active');
+  } else {
+    const el = document.getElementById('page-' + page);
+    if (el) el.classList.add('active');
+    if (page === 'participants') refreshParticipants();
+    if (page === 'admin')        refreshAdmin();
+    if (page === 'bmi')          updateBmiFio();
+    if (page === 'about')        setTimeout(drawHero, 50);
+  }
+}
+
+// ═══════════════════════════════════════════
+// REGISTER
+// ═══════════════════════════════════════════
+function browsePhoto() { document.getElementById('reg-photo-file').click(); }
+function onPhotoChange(input) {
+  if (!input.files[0]) return;
+  document.getElementById('reg-photo-name').value = input.files[0].name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('reg-photo-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('reg-photo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function showRegError(msg) {
+  const el = document.getElementById('reg-error');
+  el.textContent = msg; el.classList.add('show');
+}
+function doRegister() {
+  document.getElementById('reg-error').classList.remove('show');
+  const email   = document.getElementById('reg-email').value.trim();
+  const pass    = document.getElementById('reg-pass').value;
+  const pass2   = document.getElementById('reg-pass2').value;
+  const name    = document.getElementById('reg-name').value.trim();
+  const surname = document.getElementById('reg-surname').value.trim();
+  const gender  = document.getElementById('reg-gender').value;
+  const country = document.getElementById('reg-country').value;
+  const dob     = document.getElementById('reg-dob').value;
+
+  if (!email||!pass||!name||!surname||!dob) { showRegError('Пожалуйста, заполните все обязательные поля.'); return; }
+  if (!email.includes('@')||!email.includes('.')) { showRegError('Введите корректный Email.'); return; }
+  if (pass !== pass2) { showRegError('Пароли не совпадают.'); return; }
+  if (pass.length < 4) { showRegError('Пароль должен содержать минимум 4 символа.'); return; }
+  if (runners.some(r => r.email.toLowerCase()===email.toLowerCase())) { showRegError('Пользователь с таким Email уже зарегистрирован.'); return; }
+
+  const runner = { email, password:pass, name, surname, gender, country, dob, role:'Бегун', bmi:0 };
+  runners.push(runner);
+  save();
+  currentUser = runner;
+  alert(`Регистрация успешна! Добро пожаловать, ${name}!`);
+  navigate('bmi');
+}
+
+// ═══════════════════════════════════════════
+// PARTICIPANTS
+// ═══════════════════════════════════════════
+function refreshParticipants() {
+  const role   = document.getElementById('p-role').value;
+  const sort   = document.getElementById('p-sort').value;
+  const search = document.getElementById('p-search').value.trim().toLowerCase();
+  let list = [...runners];
+  if (role)   list = list.filter(r => r.role === role);
+  if (search) list = list.filter(r =>
+    r.name.toLowerCase().includes(search) || r.surname.toLowerCase().includes(search) ||
+    r.email.toLowerCase().includes(search) || r.role.toLowerCase().includes(search));
+  list.sort((a,b) => {
+    const k = {name:'name',surname:'surname',email:'email',role:'role'}[sort]||'name';
+    return a[k].localeCompare(b[k]);
+  });
+  const tbody = document.getElementById('participants-tbody');
+  tbody.innerHTML = list.map(r => `<tr>
+    <td>${esc(r.name)}</td><td>${esc(r.surname)}</td><td>${esc(r.email)}</td><td>${esc(r.role)}</td>
+  </tr>`).join('');
+  document.getElementById('participants-count').textContent = `Всего пользователей: ${runners.length}`;
+}
+
+// ═══════════════════════════════════════════
+// BMI
+// ═══════════════════════════════════════════
+let bmiValue = 0;
+function updateBmiFio() {
+  const el = document.getElementById('bmi-fio');
+  el.textContent = currentUser ? `${currentUser.name} ${currentUser.surname}` : '';
+}
+function calcBmi() {
+  const h = parseFloat(document.getElementById('bmi-height').value.replace(',','.'));
+  const w = parseFloat(document.getElementById('bmi-weight').value.replace(',','.'));
+  if (!h||!w||h<=0||w<=0) { alert('Введите корректные значения роста и веса.'); return; }
+  const hm = h/100;
+  bmiValue = w/(hm*hm);
+  document.getElementById('bmi-val').textContent = bmiValue.toFixed(1);
+  let cat, pct;
+  if (bmiValue<18.5)      { cat='Недостаточный'; pct=Math.max(0, bmiValue/18.5*0.25); }
+  else if (bmiValue<25)   { cat='Здоровый';      pct=0.25+(bmiValue-18.5)/6.5*0.25; }
+  else if (bmiValue<30)   { cat='Избыточный';    pct=0.50+(bmiValue-25)/5*0.25; }
+  else                    { cat='Ожирение';      pct=Math.min(1, 0.75+(bmiValue-30)/20*0.25); }
+  document.getElementById('bmi-category').textContent = cat;
+  const barW = 280, offset = Math.min(barW-14, Math.max(0, pct*barW-8));
+  document.getElementById('bmi-arrow').style.left = offset + 'px';
+}
+function saveBmi() {
+  if (bmiValue<=0) { alert('Сначала рассчитайте BMI.'); return; }
+  if (currentUser) { currentUser.bmi = Math.round(bmiValue*10)/10; save(); }
+  navigate('participants');
+}
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+function doLogin() {
+  document.getElementById('login-error').classList.remove('show');
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (user==='admin' && pass==='admin') {
+    navigate('admin');
+  } else {
+    const el = document.getElementById('login-error');
+    el.textContent = 'Неверный логин или пароль.';
+    el.classList.add('show');
+  }
+}
+
+// ═══════════════════════════════════════════
+// ADMIN GRID
+// ═══════════════════════════════════════════
+function refreshAdmin() {
+  const role   = document.getElementById('a-role').value;
+  const sort   = document.getElementById('a-sort').value;
+  const search = document.getElementById('a-search').value.trim().toLowerCase();
+  let list = runners.map((r,i)=>({...r,_i:i}));
+  if (role)   list = list.filter(r => r.role===role);
+  if (search) list = list.filter(r =>
+    r.name.toLowerCase().includes(search)||r.surname.toLowerCase().includes(search)||
+    r.email.toLowerCase().includes(search)||r.role.toLowerCase().includes(search));
+  const k = {name:'name',surname:'surname',email:'email',role:'role'}[sort]||'name';
+  list.sort((a,b)=>a[k].localeCompare(b[k]));
+  const tbody = document.getElementById('admin-tbody');
+  tbody.innerHTML = list.map(r=>`<tr>
+    <td>${esc(r.name)}</td><td>${esc(r.surname)}</td><td>${esc(r.email)}</td><td>${esc(r.role)}</td>
+    <td><button class="btn-edit" onclick="openEditPage(${r._i})">Edit</button></td>
+    <td><button class="btn-del" onclick="deleteRunner(${r._i})">✕ Удалить</button></td>
+  </tr>`).join('');
+  document.getElementById('admin-count').textContent = `Всего пользователей: ${runners.length}`;
+}
+
+// ═══════════════════════════════════════════
+// ADMIN EDIT
+// ═══════════════════════════════════════════
+function openEditPage(idx) {
+  editTarget = idx;
+  document.getElementById('edit-error').classList.remove('show');
+  document.getElementById('edit-pass').value  = '';
+  document.getElementById('edit-pass2').value = '';
+  if (idx === null) {
+    document.getElementById('edit-email-display').textContent = '(новый пользователь)';
+    document.getElementById('edit-name').value    = '';
+    document.getElementById('edit-surname').value = '';
+    document.getElementById('edit-role').value    = 'Бегун';
+  } else {
+    const r = runners[idx];
+    document.getElementById('edit-email-display').textContent = r.email;
+    document.getElementById('edit-name').value    = r.name;
+    document.getElementById('edit-surname').value = r.surname;
+    document.getElementById('edit-role').value    = r.role;
+  }
+  navigate('admin-edit');
+}
+function saveEdit() {
+  document.getElementById('edit-error').classList.remove('show');
+  const name    = document.getElementById('edit-name').value.trim();
+  const surname = document.getElementById('edit-surname').value.trim();
+  const role    = document.getElementById('edit-role').value;
+  const pass    = document.getElementById('edit-pass').value;
+  const pass2   = document.getElementById('edit-pass2').value;
+  if (!name||!surname) { showEditError('Имя и фамилия обязательны.'); return; }
+  if (pass && pass!==pass2) { showEditError('Пароли не совпадают.'); return; }
+  if (editTarget === null) {
+    runners.push({ name, surname, role, email:`${name.toLowerCase()}.${surname.toLowerCase()}@marathon.com`, password: pass||'changeme', gender:'Мужской', country:'Other', dob:'', bmi:0 });
+  } else {
+    runners[editTarget].name    = name;
+    runners[editTarget].surname = surname;
+    runners[editTarget].role    = role;
+    if (pass) runners[editTarget].password = pass;
+  }
+  save();
+  navigate('admin');
+}
+function deleteRunner(idx) {
+  const r = runners[idx];
+  if (!confirm('Удалить участника ' + r.name + ' ' + r.surname + ' (' + r.email + ')?' )) return;
+  runners.splice(idx, 1);
+  save();
+  refreshAdmin();
+}
+function showEditError(msg) {
+  const el = document.getElementById('edit-error');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
