@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marathon Skills 2026</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <span class="nav-logo">MARATHON<em style="color:var(--accent)">·</em>SKILLS</span>
+  <ul class="nav-links">
+    <li><a href="#" data-page="about"        class="active">🏠 О проекте</a></li>
+    <li><a href="#" data-page="register">📝 Регистрация</a></li>
+    <li><a href="#" data-page="participants">👥 Участники</a></li>
+    <li><a href="#" data-page="bmi">⚖️ ИМТ</a></li>
+  </ul>
+  <div class="nav-user" id="nav-user-area"></div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     PAGE: ABOUT
+═══════════════════════════════════════ -->
+<div id="page-about" class="page active">
+
+  <div class="hero">
+    <div class="hero-tag">MARATHON SKILLS 2026 · JUNE 15</div>
+    <h1>RUN <em>FURTHER</em>,<br/>PUSH HARDER</h1>
+    <p class="hero-sub">Международный марафон для спортсменов и любителей. Регистрируйтесь, соревнуйтесь, достигайте целей вместе.</p>
+    <div class="hero-actions">
+      <a href="#" data-page="register" class="btn btn-primary">Зарегистрироваться</a>
+      <a href="#" data-page="participants" class="btn btn-secondary">Список участников</a>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown-wrap">
+      <div class="countdown-label">До старта марафона</div>
+      <div class="countdown-grid">
+        <div class="cd-unit">
+          <div class="cd-num" id="cd-days">00</div>
+          <div class="cd-lbl">Дни</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit">
+          <div class="cd-num" id="cd-hours">00</div>
+          <div class="cd-lbl">Часы</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit">
+          <div class="cd-num" id="cd-mins">00</div>
+          <div class="cd-lbl">Минуты</div>
+        </div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit">
+          <div class="cd-num" id="cd-secs">00</div>
+          <div class="cd-lbl">Секунды</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features grid -->
+  <div class="features">
+    <div class="feat">
+      <div class="feat-icon">🌍</div>
+      <h3>Международный формат</h3>
+      <p>Участники со всего мира — бегуны из России, Германии, Франции, США и других стран.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🏅</div>
+      <h3>42,195 км</h3>
+      <p>Классическая марафонская дистанция по живописному городскому маршруту.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📊</div>
+      <h3>Персональная статистика</h3>
+      <p>Отслеживайте результаты, рейтинги и динамику подготовки в личном кабинете.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🤝</div>
+      <h3>Команда координаторов</h3>
+      <p>Опытные волонтёры и организаторы помогут на каждом этапе марафона.</p>
+    </div>
+  </div>
+
+  <!-- Info block -->
+  <div class="section">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:800px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem">
+        <div style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">ДАТА И МЕСТО</div>
+        <div style="font-size:1.05rem;font-weight:600">15 июня 2026 г.</div>
+        <div style="color:var(--muted);font-size:.88rem;margin-top:.25rem">Старт в 09:00</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem">
+        <div style="font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem">КАТЕГОРИИ</div>
+        <div style="font-size:1.05rem;font-weight:600">Полный марафон</div>
+        <div style="color:var(--muted);font-size:.88rem;margin-top:.25rem">42,195 км · любой уровень подготовки</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE: REGISTER
+═══════════════════════════════════════ -->
+<div id="page-register" class="page">
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Регистрация участника</h2>
+    </div>
+
+    <div class="form-card">
+      <form id="form-register" novalidate>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="reg-name">Имя *</label>
+            <input id="reg-name" type="text" placeholder="Иван" autocomplete="given-name"/>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-surname">Фамилия *</label>
+            <input id="reg-surname" type="text" placeholder="Петров" autocomplete="family-name"/>
+          </div>
+
+          <div class="form-group full">
+            <label for="reg-email">Email *</label>
+            <input id="reg-email" type="email" placeholder="ivan@example.com" autocomplete="email"/>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-pass">Пароль *</label>
+            <input id="reg-pass" type="password" placeholder="••••••••"/>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-pass2">Повтор пароля *</label>
+            <input id="reg-pass2" type="password" placeholder="••••••••"/>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-country">Страна *</label>
+            <input id="reg-country" type="text" placeholder="Russia"/>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-gender">Пол *</label>
+            <select id="reg-gender">
+              <option value="">— Выберите —</option>
+              <option value="Мужской">Мужской</option>
+              <option value="Женский">Женский</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label for="reg-dob">Дата рождения *</label>
+            <input id="reg-dob" type="date"/>
+          </div>
+
+        </div>
+
+        <div id="reg-error" class="form-error"></div>
+
+        <div id="reg-success" class="form-success" style="display:none">
+          ✅ Регистрация прошла успешно! Теперь вы можете войти.
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+          <button type="reset" class="btn btn-secondary">Очистить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE: PARTICIPANTS
+═══════════════════════════════════════ -->
+<div id="page-participants" class="page">
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Участники</h2>
+      <div class="coord-only" style="display:none">
+        <button class="btn btn-primary btn-sm" onclick="openAddRunner()">+ Добавить</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <input id="filter-search" type="text" placeholder="🔍 Поиск по имени или email…" style="min-width:220px"/>
+      <select id="filter-role">
+        <option value="">Все роли</option>
+        <option value="Координатор">Координатор</option>
+        <option value="Бегун">Бегун</option>
+      </select>
+      <select id="filter-gender">
+        <option value="">Любой пол</option>
+        <option value="Мужской">Мужской</option>
+        <option value="Женский">Женский</option>
+      </select>
+      <select id="filter-country">
+        <option value="">Все страны</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Имя</th>
+            <th>Email</th>
+            <th>Роль</th>
+            <th>Страна</th>
+            <th>Пол</th>
+            <th>Дата рождения</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="participants-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:1rem;color:var(--muted);font-size:.8rem">
+      Редактирование и удаление доступно только координаторам.
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE: BMI
+═══════════════════════════════════════ -->
+<div id="page-bmi" class="page">
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Калькулятор ИМТ</h2>
+    </div>
+
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:start;max-width:800px">
+
+      <div class="bmi-card">
+        <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.5rem">
+          Индекс массы тела (ИМТ) — показатель соответствия массы тела росту человека.
+        </p>
+        <form id="form-bmi" novalidate>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label for="bmi-weight">Масса тела (кг)</label>
+            <input id="bmi-weight" type="number" min="20" max="300" step="0.1" placeholder="70"/>
+          </div>
+          <div class="form-group" style="margin-bottom:1.5rem">
+            <label for="bmi-height">Рост (см)</label>
+            <input id="bmi-height" type="number" min="100" max="250" step="1" placeholder="175"/>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%">Рассчитать</button>
+        </form>
+
+        <div id="bmi-result" style="display:none">
+          <div class="bmi-result">
+            <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--muted);letter-spacing:.1em;margin-bottom:.5rem">ВАШ ИМТ</div>
+            <div class="bmi-value" id="bmi-value">—</div>
+            <div class="bmi-category" id="bmi-category"></div>
+            <div class="bmi-bar-wrap">
+              <div class="bmi-bar" id="bmi-bar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reference table -->
+      <div>
+        <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem">Классификация ВОЗ</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ИМТ</th>
+                <th>Категория</th>
+                <th>Риск</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="color:#7eb8ff;font-weight:600">&lt; 18.5</td><td>Недостаточная масса тела</td><td style="color:var(--muted)">Повышен</td></tr>
+              <tr><td style="color:#3dffa0;font-weight:600">18.5 – 24.9</td><td>Норма</td><td style="color:#3dffa0">Низкий</td></tr>
+              <tr><td style="color:#e8ff47;font-weight:600">25.0 – 29.9</td><td>Избыточная масса тела</td><td style="color:#e8ff47">Умеренный</td></tr>
+              <tr><td style="color:#ff8855;font-weight:600">30.0 – 34.9</td><td>Ожирение I степени</td><td style="color:#ff8855">Высокий</td></tr>
+              <tr><td style="color:#ff5555;font-weight:600">&gt; 35.0</td><td>Ожирение II–III степени</td><td style="color:#ff5555">Очень высокий</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:1.5rem;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;font-size:.82rem;color:var(--muted)">
+          💡 <strong style="color:var(--text)">Для спортсменов:</strong> ИМТ не учитывает состав тела. У бегунов с высокой мышечной массой значение может быть завышено. Проконсультируйтесь со спортивным врачом.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: LOGIN
+═══════════════════════════════════════ -->
+<div id="modal-login" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Войти</h3>
+      <button class="modal-close" onclick="closeLogin()">✕</button>
+    </div>
+    <form id="form-login" novalidate>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label for="login-pass">Пароль</label>
+        <input id="login-pass" type="password" placeholder="••••••••"/>
+      </div>
+      <div id="login-error" class="form-error" style="margin-bottom:.75rem"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Войти</button>
+    </form>
+    <div style="margin-top:1rem;font-size:.78rem;color:var(--muted);border-top:1px solid var(--border);padding-top:1rem">
+      Демо-аккаунты: <span style="color:var(--text)">first@email.com / pass1</span> (Координатор) ·
+      <span style="color:var(--text)">fourth@email.com / pass4</span> (Бегун)
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: EDIT PARTICIPANT
+═══════════════════════════════════════ -->
+<div id="modal-edit" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Редактировать</h3>
+      <button class="modal-close" onclick="closeEdit()">✕</button>
+    </div>
+    <form id="form-edit" novalidate>
+      <input type="hidden" id="edit-id"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="edit-name">Имя</label>
+          <input id="edit-name" type="text"/>
+        </div>
+        <div class="form-group">
+          <label for="edit-surname">Фамилия</label>
+          <input id="edit-surname" type="text"/>
+        </div>
+        <div class="form-group full">
+          <label for="edit-email">Email</label>
+          <input id="edit-email" type="email"/>
+        </div>
+        <div class="form-group">
+          <label for="edit-country">Страна</label>
+          <input id="edit-country" type="text"/>
+        </div>
+        <div class="form-group">
+          <label for="edit-gender">Пол</label>
+          <select id="edit-gender">
+            <option value="Мужской">Мужской</option>
+            <option value="Женский">Женский</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-dob">Дата рождения</label>
+          <input id="edit-dob" type="date"/>
+        </div>
+        <div class="form-group">
+          <label for="edit-role">Роль</label>
+          <select id="edit-role">
+            <option value="Бегун">Бегун</option>
+            <option value="Координатор">Координатор</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1.25rem">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <button type="button" class="btn btn-secondary" onclick="closeEdit()">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
